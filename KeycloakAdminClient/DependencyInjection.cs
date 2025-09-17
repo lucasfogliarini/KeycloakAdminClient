@@ -5,31 +5,25 @@ namespace KeycloakAdminClient;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddKeycloakAdminClient(this IServiceCollection services)
+    public static IServiceCollection AddKeycloakAdminClient(this IServiceCollection services, KeycloakAdminConfig keycloakAdminConfig)
     {
         var keycloakAdminClient = ClientCredentialsClientName.Parse("keycloak-admin.client");
-        services.AddClientCredentialsTokenManagement()
-              .AddClient(keycloakAdminClient, client =>
-              {
-                  client.TokenEndpoint = new Uri("http://localhost:1100/realms/bora/protocol/openid-connect/token");
-                  client.ClientId = ClientId.Parse("bora-client");
-                  client.ClientSecret = ClientSecret.Parse("AQXrW4Inbt8RyuMHxASqXvNNmZGTAn7V");
-                  client.Scope = Scope.Parse("managed-users");
-              });
+        keycloakAdminConfig.KeycloakServer = keycloakAdminConfig.KeycloakServer.TrimEnd('/');
+        services
+            .AddClientCredentialsTokenManagement()
+            .AddClient(keycloakAdminClient, client =>
+            {
+                client.TokenEndpoint = new Uri($"{keycloakAdminConfig.KeycloakServer}/realms/{keycloakAdminConfig.Realm}/protocol/openid-connect/token");
+                client.ClientId = ClientId.Parse(keycloakAdminConfig.ClientId);
+                client.ClientSecret = ClientSecret.Parse(keycloakAdminConfig.ClientSecret);
+                client.Scope = keycloakAdminConfig.Scope == null ? null : Scope.Parse(keycloakAdminConfig.Scope);
+            });
 
-
-        services.AddClientCredentialsHttpClient("users",
-          keycloakAdminClient,
-          client =>
-          {
-              client.BaseAddress = new Uri("http://localhost:1100/admin/realms/bora/users");
-          });
-
-        //services.AddHttpClient<KeycloakUsersClient>(client =>
-        //{
-        //    client.BaseAddress = new Uri("http://localhost:1100/admin/realms/bora/users");
-        //})
-        //.AddClientCredentialsTokenHandler(keycloakAdminClient);
+        services.AddHttpClient<KeycloakUsersClient>(client =>
+        {
+            client.BaseAddress = new Uri($"{keycloakAdminConfig.KeycloakServer}/admin/realms/{keycloakAdminConfig.Realm}/users");
+        })
+        .AddClientCredentialsTokenHandler(keycloakAdminClient);
 
         return services;
     }
