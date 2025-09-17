@@ -61,6 +61,12 @@ public class KeycloakUsersClient(HttpClient httpClient)
         response.EnsureSuccessStatusCode();
     }
 
+    public async Task DeleteUserAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        var response = await httpClient.DeleteAsync($"users/{userId}", cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
+
     readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions
     {
         PropertyNameCaseInsensitive = true,

@@ -8,20 +8,12 @@ public class KeycloakUsersTests
 
     public KeycloakUsersTests()
     {
-        //var keycloakAdminConfig = new KeycloakAdminConfig
-        //{
-        //    KeycloakServer = "http://localhost:1100/",
-        //    Realm = "bora",
-        //    ClientId = "bora-client",
-        //    ClientSecret = "AQXrW4Inbt8RyuMHxASqXvNNmZGTAn7V"
-        //};
-
         var keycloakAdminConfig = new KeycloakAdminConfig
         {
-            KeycloakServer = "https://id.bemdev.com.br",
-            Realm = "bemweb-tst",
-            ClientId = "engenharia-client",
-            ClientSecret = "jPDN0LwsWPr1FL8RmfGxfYAoINwGVxtZ"
+            KeycloakServer = "http://localhost:1100/",
+            Realm = "bora",
+            ClientId = "bora-client",
+            ClientSecret = "AQXrW4Inbt8RyuMHxASqXvNNmZGTAn7V"
         };
 
         var services = new ServiceCollection();
@@ -146,5 +138,15 @@ public class KeycloakUsersTests
 
         // Act
         await _keycloakUsersClient.UpdateUserAsync("98447fae-5137-4314-84aa-c6a66aa3348a", user);
+    }
+
+    [Fact]
+    public async Task DeleteUserAsync_ShouldDeleteUser()
+    {
+        // Arrange
+        var userId = "cbdac729-1eed-456f-bbcd-523f9337220a";
+
+        // Act
+        await _keycloakUsersClient.DeleteUserAsync(userId);
     }
 }
