@@ -1,0 +1,8 @@
+{
+  "KeycloakAdminConfig": {
+    "KeycloakServer": "http://localhost:1100/",
+    "Realm": null,
+    "ClientId": null,
+    "ClientSecret": null
+  }
+}

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace KeycloakAdminClient.Tests;
@@ -8,16 +9,13 @@ public class KeycloakUsersTests
 
     public KeycloakUsersTests()
     {
-        var keycloakAdminConfig = new KeycloakAdminConfig
-        {
-            KeycloakServer = "http://localhost:1100/",
-            Realm = "bora",
-            ClientId = "bora-client",
-            ClientSecret = "AQXrW4Inbt8RyuMHxASqXvNNmZGTAn7V"
-        };
+        IConfiguration configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+            .Build();
 
         var services = new ServiceCollection();
-        services.AddKeycloakAdminClient(keycloakAdminConfig);
+        services.AddKeycloakAdminClient(configuration);
         var provider = services.BuildServiceProvider();
 
         _keycloakUsersClient = provider.GetRequiredService<IKeycloakUsersClient>();
