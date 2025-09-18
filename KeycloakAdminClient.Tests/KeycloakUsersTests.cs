@@ -80,6 +80,17 @@ public class KeycloakUsersTests
             LastName = "Reunir",
             Enabled = true,
             EmailVerified = true,
+            RequiredActions = [
+                RequiredActionsConsts.VERIFY_EMAIL,
+                RequiredActionsConsts.UPDATE_PASSWORD,
+                RequiredActionsConsts.UPDATE_EMAIL,
+                RequiredActionsConsts.UPDATE_PROFILE,
+                RequiredActionsConsts.CONFIGURE_TOTP,
+                RequiredActionsConsts.RECOVERY_AUTHENTICATION_CODES,
+                RequiredActionsConsts.WEBAUTHN_REGISTER,
+                RequiredActionsConsts.WEBAUTHN_REGISTER_PASSWORDLESS,
+                RequiredActionsConsts.DELETE_CREDENTIAL
+            ]
         };
 
         // Act
