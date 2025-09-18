@@ -7,7 +7,7 @@ namespace KeycloakAdminClient;
 /// <summary>
 /// https://www.keycloak.org/docs-api/latest/rest-api/index.html#_users
 /// </summary>
-public class KeycloakUsersClient(HttpClient httpClient)
+internal class KeycloakUsersClient(HttpClient httpClient) : IKeycloakUsersClient
 {
     /// <summary>
     /// https://www.keycloak.org/docs-api/latest/rest-api/index.html#_get_adminrealmsrealmusers
@@ -55,19 +55,19 @@ public class KeycloakUsersClient(HttpClient httpClient)
     /// <summary>
     /// https://www.keycloak.org/docs-api/latest/rest-api/index.html#_put_adminrealmsrealmusersuser_id
     /// </summary>
-    public async Task UpdateUserAsync<TAttributes>(string userId, KeycloakUserUpdateRequest<TAttributes> userUpdateRequest, CancellationToken cancellationToken = default)
+    public async Task UpdateUserAsync<TAttributes>(Guid userId, KeycloakUserUpdateRequest<TAttributes> userUpdateRequest, CancellationToken cancellationToken = default)
     {
         var response = await httpClient.PutAsJsonAsync($"users/{userId}", userUpdateRequest, jsonSerializerOptions,  cancellationToken);
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task DeleteUserAsync(string userId, CancellationToken cancellationToken = default)
+    public async Task DeleteUserAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var response = await httpClient.DeleteAsync($"users/{userId}", cancellationToken);
         response.EnsureSuccessStatusCode();
     }
 
-    readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions
+    readonly JsonSerializerOptions jsonSerializerOptions = new()
     {
         PropertyNameCaseInsensitive = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,

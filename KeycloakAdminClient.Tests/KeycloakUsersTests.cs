@@ -4,7 +4,7 @@ namespace KeycloakAdminClient.Tests;
 
 public class KeycloakUsersTests
 {
-    private readonly KeycloakUsersClient _keycloakUsersClient;
+    private readonly IKeycloakUsersClient _keycloakUsersClient;
 
     public KeycloakUsersTests()
     {
@@ -20,7 +20,7 @@ public class KeycloakUsersTests
         services.AddKeycloakAdminClient(keycloakAdminConfig);
         var provider = services.BuildServiceProvider();
 
-        _keycloakUsersClient = provider.GetRequiredService<KeycloakUsersClient>();
+        _keycloakUsersClient = provider.GetRequiredService<IKeycloakUsersClient>();
     }
 
     [Fact]
@@ -33,25 +33,27 @@ public class KeycloakUsersTests
         Assert.NotNull(users);
         Assert.NotEmpty(users);
 
-        var firstUser = users.First();
+        var user = users.First();
 
-        Assert.False(string.IsNullOrWhiteSpace(firstUser.Id));
-        Assert.False(string.IsNullOrWhiteSpace(firstUser.Username));
-        Assert.False(string.IsNullOrWhiteSpace(firstUser.Email));
+        Assert.NotNull(user);
+
+        Assert.NotNull(user.Id);
+        Assert.NotEmpty(user.Username);
+        Assert.NotEmpty(user.Email);
     }
 
     [Fact]
     public async Task GetUserByEmailAsync_ShouldReturn_AtLeastOneUser()
     {
         // Act
-        var user = await _keycloakUsersClient.GetUserByEmailAsync("bora.reunir@sample.com");
+        var user = await _keycloakUsersClient.GetUserByEmailAsync("bora@mail.com");
 
         // Assert
         Assert.NotNull(user);
 
-        Assert.False(string.IsNullOrWhiteSpace(user.Id));
-        Assert.False(string.IsNullOrWhiteSpace(user.Username));
-        Assert.False(string.IsNullOrWhiteSpace(user.Email));
+        Assert.NotNull(user.Id);
+        Assert.NotEmpty(user.Username);
+        Assert.NotEmpty(user.Email);
     }
 
     [Fact]
@@ -63,9 +65,9 @@ public class KeycloakUsersTests
         // Assert
         Assert.NotNull(user);
 
-        Assert.False(string.IsNullOrWhiteSpace(user.Id));
-        Assert.False(string.IsNullOrWhiteSpace(user.Username));
-        Assert.False(string.IsNullOrWhiteSpace(user.Email));
+        Assert.NotNull(user.Id);
+        Assert.NotEmpty(user.Username);
+        Assert.NotEmpty(user.Email);
     }
 
     [Fact]
@@ -74,8 +76,8 @@ public class KeycloakUsersTests
         // Arrange
         var newUser = new KeycloakUserCreateRequest
         {
-            Username = "bora2",
-            Email = "bora.reunir@sample.com",
+            Username = "bora",
+            Email = "bora@mail.com",
             FirstName = "Bora",
             LastName = "Reunir",
             Enabled = true,
@@ -90,7 +92,10 @@ public class KeycloakUsersTests
     public async Task UpdateUserAsync_ShouldUpdateUser()
     {
         // Arrange
-        var user = new KeycloakUserUpdateRequest
+        var userResponse = await _keycloakUsersClient.GetUserByUsernameAsync("bora");
+        Assert.NotNull(userResponse);
+
+        var userRequest = new KeycloakUserUpdateRequest
         {
             FirstName = "Bora Atualizado",
             LastName = "Reunir Atualizado",
@@ -99,7 +104,7 @@ public class KeycloakUsersTests
         };
 
         // Act
-        await _keycloakUsersClient.UpdateUserAsync("98447fae-5137-4314-84aa-c6a66aa3348a", user);
+        await _keycloakUsersClient.UpdateUserAsync(userResponse.Id, userRequest);
     }
 
     [Fact]
@@ -108,8 +113,8 @@ public class KeycloakUsersTests
         // Arrange
         var newUser = new KeycloakUserCreateRequest<UserAttributes>
         {
-            Username = "bora",
-            Email = "bora.reunir@sample.com",
+            Username = "bora_com_atributos",
+            Email = "bora_com_atributos@mail.com",
             FirstName = "Bora",
             LastName = "Reunir",
             Enabled = true,
@@ -128,6 +133,9 @@ public class KeycloakUsersTests
     public async Task UpdateUserAsync_ShouldUpdateUser_WithAttributes()
     {
         // Arrange
+        var userResponse = await _keycloakUsersClient.GetUserByUsernameAsync("bora_com_atributos");
+        Assert.NotNull(userResponse);
+
         var user = new KeycloakUserUpdateRequest<UserAttributes>
         {
             Attributes = new UserAttributes
@@ -137,16 +145,23 @@ public class KeycloakUsersTests
         };
 
         // Act
-        await _keycloakUsersClient.UpdateUserAsync("98447fae-5137-4314-84aa-c6a66aa3348a", user);
+        await _keycloakUsersClient.UpdateUserAsync(userResponse.Id, user);
     }
 
     [Fact]
     public async Task DeleteUserAsync_ShouldDeleteUser()
     {
         // Arrange
-        var userId = "cbdac729-1eed-456f-bbcd-523f9337220a";
+        var newUser = new KeycloakUserCreateRequest
+        {
+            Username = "bora_deletar",
+            Email = "bora_deletar@mail.com"
+        };
+        await _keycloakUsersClient.CreateUserAsync(newUser);
+        var userResponse = await _keycloakUsersClient.GetUserByUsernameAsync(newUser.Username);
+        Assert.NotNull(userResponse);
 
         // Act
-        await _keycloakUsersClient.DeleteUserAsync(userId);
+        await _keycloakUsersClient.DeleteUserAsync(userResponse.Id);
     }
 }

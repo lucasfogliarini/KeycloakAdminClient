@@ -19,7 +19,7 @@ public static class DependencyInjection
                 client.Scope = keycloakAdminConfig.Scope == null ? null : Scope.Parse(keycloakAdminConfig.Scope);
             });
 
-        services.AddHttpClient<KeycloakUsersClient>(client =>
+        services.AddHttpClient<IKeycloakUsersClient, KeycloakUsersClient>(client =>
         {
             client.BaseAddress = new Uri($"{keycloakAdminConfig.KeycloakServer}/admin/realms/{keycloakAdminConfig.Realm}/users");
         })
